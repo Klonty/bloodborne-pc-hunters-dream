@@ -2797,9 +2797,8 @@ class SetupGuide:
             button = ttk.Button(row, text=_('Sign in with Discord'), style='Card.Accent.TButton', command=sign_in)
             button.pack(side='left')
             show()
-        tk.Label(online, text=_("The Hunter's Dream is the default (SuperMedo Server is a second choice), and every "
-                                'option is on the Online play page. Offline needs nothing: untick it.')
-                 if L.HUNTERS_DREAM_POOL else
+        tk.Label(online, text=_("With The Hunter's Dream, together with bbhost players. It needs a free sign-in "
+                                'with Discord, once.') if L.HUNTERS_DREAM_POOL else
                  _('A shadNet server instead, and every option: the Online play page. Offline needs '
                    'nothing: untick it.'), bg=theme.CARD, fg=theme.MUTED, font=(theme.BODY, 9),
                  justify='left', wraplength=px(660)).pack(anchor='w', pady=(px(10), 0))

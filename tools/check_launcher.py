@@ -6,6 +6,7 @@ with a short summary. Run it after every larger change, and before a release:
     python tools/check_launcher.py --quick   only the checks without a window
 
 Exit code 0 when nothing failed but the known problems listed in KNOWN."""
+import os
 import sys
 import time
 import unittest
@@ -22,7 +23,11 @@ MODULES = ['test_launcher_completeness'] + sorted(p.stem for p in TESTS.glob('te
     'test_ready_checks']  # missing ones are skipped
 WINDOW = {'test_launcher_completeness.LiveTests', 'test_launcher_search_live', 'test_launcher_window'}
 # Failures that are known and tracked elsewhere: test id (start) -> why. Empty while nothing is.
-KNOWN = {}
+# GitHub's Windows runner has no real graphics card (only Microsoft Basic Render Driver), so the
+# hardware-dependent Vulkan check cannot pass there.
+KNOWN = ({'test_vulkan_check.ThisPcTests.test_windows_lists_its_cards':
+          'GitHub Actions has only the Microsoft Basic Render Driver'}
+         if os.environ.get('CI') else {})
 
 
 def known(test_id):

@@ -692,6 +692,7 @@ class OnlinePageTests(unittest.TestCase):
         return texts(self.page)
 
     def test_the_connection_test_never_stays_at_checking(self):
+        self.app.var('online_pool', 'app').set('supermedo')  # this test drives the shadNet check
         with mock.patch.object(L, 'server_check', side_effect=RuntimeError('a bug')):
             self.assertIn('The check stopped: RuntimeError: a bug', self.click('Test connection'))
 

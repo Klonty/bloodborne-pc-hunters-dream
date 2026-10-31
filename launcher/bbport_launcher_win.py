@@ -248,6 +248,7 @@ import bbport_lang_world  # noqa: E402,F401 (the new texts in the other eleven l
 import bbport_lang_port  # noqa: E402,F401 (the 1.9.3 texts and the Controls page's key names)
 import bbport_lang_195  # noqa: E402,F401 (the 1.9.5 texts: the shadNet server that turns the port away)
 import bbport_lang_pools  # noqa: E402,F401 (the co-op pools' texts with The Hunter's Dream back)
+import bbport_lang_fork  # noqa: E402,F401 (this fork: The Hunter's Dream first, SuperMedo Server second)
 import bbport_lang_mistakes  # noqa: E402,F401 (the repairs of player mistakes, in the other eleven languages)
 import bbport_lang_vram  # noqa: E402,F401 (the video memory warning's switch)
 import bbport_lang_latency  # noqa: E402,F401 (the low latency options)
@@ -897,6 +898,8 @@ def settled_pool(s, env=None):
         return pool
     if started_by_bbsc(env) and ((pool == 'shadnet' and s.get('online_custom_servers')) or bbsc_server_saved(s, env)):
         return 'shadnet'
+    if pool == 'supermedo':
+        return 'supermedo'
     return 'huntersdream' if HUNTERS_DREAM_POOL else 'supermedo'
 
 
