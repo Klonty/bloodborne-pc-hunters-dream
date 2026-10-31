@@ -52,6 +52,7 @@ def offer(version, beta, latest, betas):
         return L.update_to_offer(), answers.asked
 
 
+@unittest.skipIf(L.FORK_NAME, 'this fork disables the upstream updater and ships launcher patches only')
 class BetaChannelTests(unittest.TestCase):
     def test_beta_2_gets_beta_3_while_the_release_is_1_9_4(self):
         found, _asked = offer('1.9.5', 2, RELEASE_194, BETAS)

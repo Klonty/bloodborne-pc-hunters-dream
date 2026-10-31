@@ -43,6 +43,10 @@ MAX_LOG_LINES = 6000
 NO_WINDOW = getattr(subprocess, 'CREATE_NO_WINDOW', 0)
 # This build; GitHub release tags are windows-v<VERSION>.
 VERSION = '1.9.7'
+# This fork restores The Hunter's Dream as the default co-op pool. Its name is shown beside the version;
+# its releases carry the launcher patch only (the game package stays upstream's).
+FORK_NAME = "The Hunter's Dream fork"
+FORK_PAGE = 'https://github.com/Klonty/bloodborne-pc-hunters-dream'
 # A beta of VERSION (its number), or 0: shown as 'v1.9.5 beta 1', and the release of VERSION itself is
 # offered as its update.
 BETA = 0
@@ -53,19 +57,19 @@ BETA_PAGE = 'https://github.com/emurphy04/bloodborne_pc/releases/tag/v1.9.5-beta
 DISCORD_APPLICATION_ID = '1563260197835907232'
 # Co-op: the community server that answers the game's own server requests.
 COMMUNITY_SERVER = 'https://game.supermedo.com'
-# The Hunter's Dream, for its own pool (off since 1.9.7; BB_HUNTERS_DREAM=1 shows it again): its sign-in, player
+# The Hunter's Dream, the default co-op pool in this fork (BB_HUNTERS_DREAM=0 hides it): its sign-in, player
 # count and game server.
 HUNTERS_DREAM_SERVER = 'https://thehuntersdream.com'
 # SuperMedo Server: the shadNet server (accounts, bells and summons) and the game server above,
 # both supermedo.com's own.
 SUPERMEDO_SERVER, SUPERMEDO_WEBAPI = 'np.supermedo.com:31313', 'http://np.supermedo.com:31315'
-RELEASES_API = 'https://api.github.com/repos/Supermedo/bloodborne_pc/releases/latest'
-RELEASES_PAGE = 'https://github.com/Supermedo/bloodborne_pc/releases/latest'
+RELEASES_API = 'https://api.github.com/repos/Klonty/bloodborne-pc-hunters-dream/releases/latest'
+RELEASES_PAGE = 'https://github.com/Klonty/bloodborne-pc-hunters-dream/releases/latest'
 # The community site (install guide, FAQ, forum), linked from the side bar.
 COMMUNITY_SITE = 'https://bbport.de/'
-RELEASES_LIST_API = 'https://api.github.com/repos/Supermedo/bloodborne_pc/releases?per_page=100'
+RELEASES_LIST_API = 'https://api.github.com/repos/Klonty/bloodborne-pc-hunters-dream/releases?per_page=100'
 # The betas (pre-releases v<VERSION>-beta.<N>): a beta asks here too, for the next one (update_to_offer).
-BETAS_API = 'https://api.github.com/repos/emurphy04/bloodborne_pc/releases?per_page=30'
+BETAS_API = 'https://api.github.com/repos/Klonty/bloodborne-pc-hunters-dream/releases?per_page=30'
 # The oldest version Advanced > Other versions offers: older ones cannot read today's settings. (A copy of
 # this launcher installs it, whatever version: update_installer.)
 OLDEST_INSTALLABLE = '1.8.2'
@@ -256,7 +260,6 @@ import bbport_lang_audit4  # noqa: E402,F401 (the search: the side bar's buttons
 import bbport_lang_audit5  # noqa: E402,F401 (Help's new order: asking for help above the problems)
 import bbport_lang_audit8  # noqa: E402,F401 (sharpening with FSR 4, achievements from another installation)
 import bbport_lang_news  # noqa: E402,F401 (the What's new window)
-import bbport_lang_thd  # noqa: E402,F401 (1.9.7: The Hunter's Dream no longer offered)
 import bbport_lang_readouts  # noqa: E402,F401 (the FPS counter's lines)
 # Last of the texts: it builds bbport_lang's tables (table()) to add its own, so a module registering
 # EXTRA_TRANSLATIONS after it would not be in them.
@@ -394,10 +397,10 @@ APP_DEFAULTS = {'ui_language': '', 'game_dir': str(PORT_DIR.parent / 'CUSA03173'
                 'vk_validation': False, 'extra_env': '', 'close_on_play': False,
                 'on_play': 'stay', 'reopen_after_game': False, 'minimize_to_tray': False, 'discord_status': True,
                 'menu_key': 'Insert', 'menu_pad': 'l3+r3',
-                'check_updates': True, 'save_backups': False, 'online': False, 'online_server': 'srv.shadps4.net:31313',
+                'check_updates': False, 'save_backups': False, 'online': False, 'online_server': 'srv.shadps4.net:31313',
                 'online_webapi': '', 'online_npid': '', 'online_password': '', 'online_upnp': True,
                 'online_custom_servers': False, 'supermedo_npid': '', 'supermedo_pass': '',
-                'online_community': COMMUNITY_SERVER, 'online_pool': 'supermedo', 'bridge_live_map': False,
+                'online_community': COMMUNITY_SERVER, 'online_pool': 'huntersdream', 'bridge_live_map': False,
                 'thd_online_id': '', 'thd_token': '',
                 # The setup guide ran (or the launcher was set up before it existed); a graphics card
                 # chosen by hand when the detected one is not in the hardware check's list.
@@ -853,9 +856,10 @@ def game_server(s):
     Dream's sign-in and backend exist on The Hunter's Dream
     only, and other tools write their own address into the field (a co-op tool's: "has no account
     service" at the sign-in)."""
-    if s.get('online_pool') == 'shadnet' and s.get('online_custom_servers'):
+    pool = chosen_pool(s)
+    if pool == 'shadnet' and s.get('online_custom_servers'):
         return community_address(s.get('online_community', ''))
-    if s.get('online_pool') == 'huntersdream' and HUNTERS_DREAM_POOL:
+    if pool == 'huntersdream' and HUNTERS_DREAM_POOL:
         return HUNTERS_DREAM_SERVER
     return COMMUNITY_SERVER
 
@@ -885,17 +889,15 @@ def started_by_bbsc(env=None):
 
 
 def settled_pool(s, env=None):
-    """The co-op pool a launcher start keeps (online_custom_servers already settled): SuperMedo Server (the
-    default) or The Hunter's Dream while it is on. Since 1.9.5 beta 10 the launcher offers no other server:
-    players who chose shadPS4's public one (which refuses the port) or another own server were confused
-    about where they played, so they move to SuperMedo Server. Only Seamless co-op's own start (started_by_bbsc)
-    keeps its shadNet server."""
+    """The co-op pool a launcher start keeps (online_custom_servers already settled): The Hunter's Dream (the
+    default in this fork) or SuperMedo Server as the second choice. Only Seamless co-op's own start
+    (started_by_bbsc) keeps its shadNet server."""
     pool = s.get('online_pool')
     if pool == 'huntersdream' and HUNTERS_DREAM_POOL:
         return pool
     if started_by_bbsc(env) and ((pool == 'shadnet' and s.get('online_custom_servers')) or bbsc_server_saved(s, env)):
         return 'shadnet'
-    return 'supermedo'
+    return 'huntersdream' if HUNTERS_DREAM_POOL else 'supermedo'
 
 
 def bbsc_server_saved(s, env=None):
@@ -922,9 +924,9 @@ def settled_online(app, saved):
 
 
 def chosen_pool(s):
-    """The pool a start plays on: The Hunter's Dream's players play on SuperMedo Server while it is not offered
-    (since 1.9.7), before the window or settled_pool has rewritten their choice."""
-    pool = s.get('online_pool', 'supermedo')
+    """The pool a start plays on: The Hunter's Dream by default, SuperMedo Server only when the fork's gate
+    is off (BB_HUNTERS_DREAM=0), before the window or settled_pool has rewritten the choice."""
+    pool = s.get('online_pool', 'huntersdream')
     return 'supermedo' if pool == 'huntersdream' and not HUNTERS_DREAM_POOL else pool
 
 
@@ -1003,9 +1005,9 @@ def server_check(server, webapi, community):
 
 
 # The Hunter's Dream pool: the engine's own backend for it (BB_NET_BACKEND=thd, bbhost's
-# protocol, from Awaken's port). Not offered since 1.9.7: its players move to SuperMedo Server (settled_pool,
-# show_pool) and are told once (bbport_news). BB_HUNTERS_DREAM=1 shows it again.
-HUNTERS_DREAM_POOL = os.environ.get('BB_HUNTERS_DREAM', '0') == '1'
+# protocol, from Awaken's port). This fork offers it by default; BB_HUNTERS_DREAM=0 hides it and
+# moves its players to SuperMedo Server (settled_pool, show_pool).
+HUNTERS_DREAM_POOL = os.environ.get('BB_HUNTERS_DREAM', '1') != '0'
 
 
 SHADNET_ERRORS = {3: 'The name or the email address is not valid.', 4: 'Too soon: try again in a minute.',
@@ -1369,12 +1371,13 @@ def game_environment(s, graphics=None):
         env['BB_SHADNET_PASSWORD'] = str(s['online_password'])
         env['BB_UPNP'] = '1' if s['online_upnp'] else '0'
         env['BB_COMMUNITY_SERVER'] = game_server(s)
-        if s.get('online_pool', 'supermedo') == 'supermedo':  # SuperMedo Server: its own addresses and account
+        pool = chosen_pool(s)
+        if pool == 'supermedo':  # SuperMedo Server: its own addresses and account
             env['BB_SHADNET_SERVER'] = SUPERMEDO_SERVER
             env['BB_SHADNET_WEBAPI'] = SUPERMEDO_WEBAPI
             env['BB_SHADNET_NPID'] = str(s.get('supermedo_npid', '')).strip()
             env['BB_SHADNET_PASSWORD'] = str(s.get('supermedo_pass', ''))
-        if s.get('online_pool') == 'huntersdream' and HUNTERS_DREAM_POOL:
+        if pool == 'huntersdream' and HUNTERS_DREAM_POOL:
             # The engine's Hunter's Dream backend with the Discord-linked account (run.py sets
             # the game server and the backend's addresses).
             env['BB_NET_BACKEND'] = 'thd'
@@ -2076,6 +2079,7 @@ class Launcher(bbport_setup.SetupMixin, bbport_help.HelpMixin, bbport_search.Sea
         tk.Label(words, text='BLOODBORNE', bg=BG, fg=theme.TEXT_STRONG, font=(theme.HEAD_BOLD, 14)).pack(anchor='w')
         tk.Label(words, text='PC PORT', bg=BG, fg=GOLD, font=(theme.HEAD, 8)).pack(anchor='w')
         self.byline = tk.Label(side, text=_('by Super Medo') + f'  ·  v{VERSION_TEXT}' +
+                               (f'  ·  {FORK_NAME}' if FORK_NAME else '') +
                                ('\n' + _('co-op test build') if COOP_TEST else ''),
                                bg=BG, fg=MUTED, justify='left', font=(theme.BODY, 9))
         self.byline_pads = ((px(2), px(8)), (0, px(4)))  # its gaps under the full head and the narrower ones
@@ -3266,16 +3270,16 @@ class Launcher(bbport_setup.SetupMixin, bbport_help.HelpMixin, bbport_search.Sea
         self.section(f, _('Co-op pool'))
         pool = self.var('online_pool', 'app')
         pool.trace_add('write', lambda *_a: (self.refresh_status(), self.root.after_idle(self.ask_hunters)))
-        # SuperMedo Server first (the default), The Hunter's Dream (the previous server) for the time being. An own
+        # The Hunter's Dream first (the default in this fork), SuperMedo Server as the second choice. An own
         # server only for Seamless co-op's own start (settled_pool): other servers confused players about where
         # they played. Each keeps its own account (pool_account): switching back and forth signs none out.
         pools = ttk.Frame(f)
-        ttk.Radiobutton(pools, text=_('SuperMedo Server (recommended)') if HUNTERS_DREAM_POOL else
-                        _('SuperMedo Server'), variable=pool, value='supermedo').pack(side='left', padx=(0, 16))
         if HUNTERS_DREAM_POOL:
-            ttk.Radiobutton(pools, text=_("The Hunter's Dream (previous server)"), variable=pool,
+            ttk.Radiobutton(pools, text=_("The Hunter's Dream (recommended)"), variable=pool,
                             value='huntersdream').pack(side='left', padx=(0, 16))
-        elif pool.get() == 'huntersdream':
+        ttk.Radiobutton(pools, text=_('SuperMedo Server'), variable=pool, value='supermedo').pack(
+            side='left', padx=(0, 16))
+        if not HUNTERS_DREAM_POOL and pool.get() == 'huntersdream':
             pool.set('supermedo')
         bbsc = started_by_bbsc()
         if bbsc:
@@ -3285,9 +3289,9 @@ class Launcher(bbport_setup.SetupMixin, bbport_help.HelpMixin, bbport_search.Sea
             pool.set('supermedo')
         pools.setting_key = 'online_pool'  # the search's words (bbport_search.WORDS)
         self.row(f, _('Play with'), pools, ' '.join(
-            [_("SuperMedo Server (recommended): supermedo.com's own servers, with a free account made below.")] +
-            ([_("The Hunter's Dream: the previous server, still here for now; connections there often drop.")]
+            ([_("The Hunter's Dream (recommended): co-op with bbhost players, with a Discord sign-in below.")]
              if HUNTERS_DREAM_POOL else []) +
+            [_("SuperMedo Server: supermedo.com's own servers, with a free account made below.")] +
             ([_("Own server: Seamless co-op's or a friend's private server, with its address and account.")]
              if bbsc else [])))
         self.hunters_line = ttk.Label(f, text='', style='Muted.TLabel')
@@ -3303,13 +3307,9 @@ class Launcher(bbport_setup.SetupMixin, bbport_help.HelpMixin, bbport_search.Sea
             before = now
 
         self.section(f, _("The Hunter's Dream account"))
-        # The previous server, for the time being: its players lose the connection often, so the page sends
-        # them on to SuperMedo Server.
-        self.note(f, _("The Hunter's Dream is the previous server and stays only for the time being. Connections "
-                       'there often drop, so SuperMedo Server is recommended. Your sign-ins on both stay when you '
-                       'switch.'), top=0)
-        self.row(f, '', ttk.Button(f, text=_('Switch to SuperMedo Server'), style='Accent.TButton',
-                                   command=lambda: (pool.set('supermedo'), self.collect())))
+        # This fork keeps The Hunter's Dream first; SuperMedo Server stays a choice, with its own account below.
+        self.note(f, _("The Hunter's Dream is the default in this fork. SuperMedo Server stays available as a "
+                       'second choice; your sign-ins on both stay when you switch.'), top=0)
         account = ttk.Label(f, text='', justify='left')
 
         thd_id, thd_token = self.var('thd_online_id', 'app'), self.var('thd_token', 'app')
@@ -4761,10 +4761,6 @@ class Launcher(bbport_setup.SetupMixin, bbport_help.HelpMixin, bbport_search.Sea
         self.check_line('firewall', '⚠ ' + _('Windows Firewall blocks the game: co-op can fail (Help)')
                         if online and getattr(self, 'firewall_blocked', False) else '',
                         lambda: self.open_topic('firewall'))
-        previous = online and self.var('online_pool', 'app').get() == 'huntersdream'  # nudged to SuperMedo Server
-        self.check_line('pool', '• ' + _("The Hunter's Dream is the previous server, and connections there often "
-                                         'drop: switch to SuperMedo Server') if previous else '',
-                        lambda: self.show('online'))
         if getattr(self, 'online_note', None):
             self.online_note.configure(text=(_('signed in as {}').format(name) if online and signed_in and name else
                                              _('not signed in ›') if online and not signed_in else ''),
@@ -6497,6 +6493,9 @@ def update_to_offer():
     own version's release (the beta's goal), else the next beta, so testers move from beta to beta
     and on to the release without downloading by hand. Raises the first error when no check answered (any
     kind: a broken reply from a proxy is no OSError, and a beta still asks for the next beta then)."""
+    # This fork ships a launcher patch, not a full game package: upstream's updater would replace the fork.
+    if FORK_NAME:
+        return None
     failure = None
     try:
         version, url, page = latest_release()
@@ -6534,6 +6533,9 @@ def game_zip(release):
 def installable_releases():
     """[(version, zip URL, page URL)] of the published releases from OLDEST_INSTALLABLE on, newest
     first (drafts, pre-releases and releases without a zip left out)."""
+    # This fork's releases are launcher patches, not full installations; Other versions stays empty.
+    if FORK_NAME:
+        return []
     request = urllib.request.Request(RELEASES_LIST_API, headers={'Accept': 'application/vnd.github+json',
                                                                  'User-Agent': 'bbport-launcher'})
     with bbport_tls.urlopen(request, timeout=15) as response:

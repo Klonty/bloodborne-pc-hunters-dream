@@ -29,17 +29,18 @@ def servers_notice():
              'in, or make a free account, on the Online page.')
 
 
-def hunters_dream_notice():
-    return _("The Hunter's Dream is no longer offered: the port plays on SuperMedo Server only. If you played there, "
-             'you now play on SuperMedo Server. Sign in, or make a free account, on the Online page.')
+def fork_notice():
+    return _("This fork restores The Hunter's Dream as the default co-op pool. The Hunter's Dream and "
+             'SuperMedo Server both stay available on the Online page; your sign-ins on both stay when you '
+             'switch.')
 
 
 NOTES = {
     '1.9.7': (
-        hunters_dream_notice,
+        fork_notice,
         [('Online', [
-            "The Hunter's Dream is no longer offered: SuperMedo Server is the port's server. Players who chose The "
-            "Hunter's Dream move to SuperMedo Server by themselves.",
+            "The Hunter's Dream is the default co-op pool again. SuperMedo Server stays available as a second "
+            "choice on the Online page.",
         ]), ('Fixes', [
             'Updates install safely: the new version is put in place in one step and undone when Windows holds a '
             'file, so an update can no longer leave a launcher that does not start ("Failed to start embedded '

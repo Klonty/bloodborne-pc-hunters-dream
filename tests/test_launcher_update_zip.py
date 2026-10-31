@@ -45,6 +45,7 @@ class GameZipTests(unittest.TestCase):
         with mock.patch.object(L.bbport_tls, 'urlopen', return_value=answer(release)):
             self.assertEqual(L.latest_release(), ('1.9.5', GAME['browser_download_url'], 'https://example.invalid/r'))
 
+    @unittest.skipIf(L.FORK_NAME, 'this fork disables the upstream updater and Other versions')
     def test_other_versions_list_the_game_zips(self):
         releases = [{'tag_name': 'windows-v1.9.5', 'html_url': 'a', 'assets': [SOURCE, GAME]},
                     {'tag_name': 'windows-v1.9.4', 'html_url': 'b', 'assets': [GAME, SOURCE]}]
@@ -52,6 +53,16 @@ class GameZipTests(unittest.TestCase):
             found = L.installable_releases()
         self.assertEqual([(v, u) for v, u, _p in found],
                          [('1.9.5', GAME['browser_download_url']), ('1.9.4', GAME['browser_download_url'])])
+
+
+class ForkUpdateTests(unittest.TestCase):
+    """The fork ships launcher patches, not full game packages: the upstream updater must not run."""
+
+    @unittest.skipUnless(L.FORK_NAME, 'only for the fork build')
+    def test_updates_are_not_offered(self):
+        self.assertIsNone(L.update_to_offer())
+        self.assertEqual(L.installable_releases(), [])
+        self.assertFalse(L.APP_DEFAULTS['check_updates'])
 
 
 if __name__ == '__main__':

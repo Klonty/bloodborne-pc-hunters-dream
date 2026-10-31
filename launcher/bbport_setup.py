@@ -2687,10 +2687,10 @@ class SetupGuide:
         played.pack_options = {'fill': 'x', 'pady': (0, px(14))}
         if origin != 'new':
             played.pack(fill='x', pady=(0, px(14)))
-        if not self.online_offered and self.first:  # on by default (SuperMedo Server), once
+        if not self.online_offered and self.first:  # on by default (The Hunter's Dream), once
             self.online_offered = True
             app.var('online', 'app').set(True)
-            app.var('online_pool', 'app').set('supermedo')
+            app.var('online_pool', 'app').set('huntersdream' if L.HUNTERS_DREAM_POOL else 'supermedo')
         online = self.card(body)
         played.pack_options['before'] = online.master  # found later: above the online card
         self.heading(online, _('Play with others'))
@@ -2797,8 +2797,9 @@ class SetupGuide:
             button = ttk.Button(row, text=_('Sign in with Discord'), style='Card.Accent.TButton', command=sign_in)
             button.pack(side='left')
             show()
-        tk.Label(online, text=_("The Hunter's Dream (the previous server), your own server, and every option: the "
-                                'Online play page. Offline needs nothing: untick it.') if L.HUNTERS_DREAM_POOL else
+        tk.Label(online, text=_("The Hunter's Dream is the default (SuperMedo Server is a second choice), and every "
+                                'option is on the Online play page. Offline needs nothing: untick it.')
+                 if L.HUNTERS_DREAM_POOL else
                  _('A shadNet server instead, and every option: the Online play page. Offline needs '
                    'nothing: untick it.'), bg=theme.CARD, fg=theme.MUTED, font=(theme.BODY, 9),
                  justify='left', wraplength=px(660)).pack(anchor='w', pady=(px(10), 0))

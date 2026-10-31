@@ -187,6 +187,7 @@ class ServerCheckTests(unittest.TestCase):
         app.show_hunters.assert_called_once()
 
 
+@unittest.skipIf(L.FORK_NAME, 'this fork disables the upstream updater and ships launcher patches only')
 class UpdateCheckTests(unittest.TestCase):
     def setUp(self):
         patcher = mock.patch.object(L, 'LANG', 'en')
@@ -699,11 +700,13 @@ class OnlinePageTests(unittest.TestCase):
             self.assertIn('Sign-in failed: BadStatusLine', self.click('Sign in with Discord'))
 
     def test_the_supermedo_sign_in(self):
+        self.app.var('online_pool', 'app').set('supermedo')  # the fork defaults to The Hunter's Dream
         with mock.patch.object(L, 'discord_sign_in', side_effect=http.client.IncompleteRead(b'')):
             self.assertIn('Sign-in failed: IncompleteRead(0 bytes read)', self.click('Sign in with Discord', 1))
 
     def test_a_new_account(self):
         import struct
+        self.app.var('online_pool', 'app').set('supermedo')  # the fork defaults to The Hunter's Dream
         for title, value in (('New Online ID', 'NewHunter'), ('New password', 'secret'),
                              ('Email address', 'hunter@example.net')):
             label, = [w for w in widgets(self.page) if w.winfo_class() == 'TLabel' and w.cget('text') == title]
