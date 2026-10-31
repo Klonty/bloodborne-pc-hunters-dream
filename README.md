@@ -50,8 +50,9 @@ https://nativeretro.com/
 - **Game tests:** the launcher plays a fixed scene by itself and measures it, to find the best
   settings for 60, 90 or 120 FPS, to compare one setting with screenshots side by side, or to
   test a beta for crashes over hours; the report has every chart and the logs.
-- **Updates from the launcher:** when a new version is out it tells you, and **Update**
-  installs it. Your saves, settings and mods are kept.
+- **Updates:** this fork turns the built-in updater off, because an upstream release would
+  replace the patched launcher. Install a newer launcher patch from
+  [this fork's releases](https://github.com/Klonty/bloodborne-pc-hunters-dream/releases).
 - **NVIDIA DLSS** on GeForce RTX cards (RTX 20 series and newer).
 - **AMD FSR 3.1 and FSR 4** upscaling, plus native-resolution TAA.
 - **Windows AMD ML-FG 4.0.1** on supported RX 9000 GPUs, alongside FSR 3.1 frame
