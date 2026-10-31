@@ -25,6 +25,7 @@ jobs:
       - name: Build Bloodborne.exe
         shell: pwsh
         run: |
+          $root = (Get-Location).Path
           $hidden = @(
             'argparse', 'base64', 'bisect', 'collections', 'contextlib', 'hashlib', 'json',
             're', 'shutil', 'struct', 'tempfile', 'xml.etree.ElementTree', 'urllib.request',
@@ -32,12 +33,12 @@ jobs:
           )
           $pyArgs = @(
             '-m', 'PyInstaller', '--noconfirm', '--clean', '--log-level', 'WARN', '--windowed',
-            '--name', 'Bloodborne', '--icon', 'launcher/bloodborne.ico',
+            '--name', 'Bloodborne', '--icon', "$root\launcher\bloodborne.ico",
             '--distpath', 'out/pyi-dist', '--workpath', 'out/pyi-work', '--specpath', 'out/pyi-work',
-            '--paths', 'scripts', '--add-data', 'launcher/assets;assets'
+            '--paths', "$root\scripts", '--add-data', "$root\launcher\assets;assets"
           )
           foreach ($module in $hidden) { $pyArgs += @('--hidden-import', $module) }
-          $pyArgs += 'launcher/bbport_launcher_win.py'
+          $pyArgs += "$root\launcher\bbport_launcher_win.py"
           & python @pyArgs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
