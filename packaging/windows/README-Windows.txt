@@ -49,13 +49,14 @@ Data
 
 Online play (beta)
 - In the launcher open "Online play" and tick "Play online". Then choose who you play with:
-  - The Hunter's Dream (the default): co-op together with bbhost players. Press "Sign in with
-    Discord" once and enter the code on the page that opens.
-  - shadNet server: register an account at https://shadnet.shadps4.net and enter the account
-    name (not the email) and password.
+  - The Hunter's Dream (the default in this fork): co-op together with bbhost players. Press
+    "Sign in with Discord" once and enter the code on the page that opens.
+  - SuperMedo Server: supermedo.com's own servers. Sign in with Discord or make a free account
+    on the same page.
   Press "Test connection", then PLAY and choose online at the title screen.
-- Messages, bloodstains and ghosts come from The Hunter's Dream (https://thehuntersdream.com).
-  Everyone in a session needs game version 1.09 and the same co-op pool.
+- Messages, bloodstains and ghosts come from the chosen server; on The Hunter's Dream they come
+  from https://thehuntersdream.com. Everyone in a session needs game version 1.09 and the same
+  co-op pool.
 - Please don't ask The Hunter's Dream for help with bbport: ask in Help & Support on our forum
   (https://forum.bbport.de/t/help-support) or on our Discord server
   (https://discord.gg/WtYT4fXhEN) instead.

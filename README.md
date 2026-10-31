@@ -3,11 +3,18 @@
 
 **Bloodborne running natively on Windows 10 and 11, by [Supermedo](https://github.com/Supermedo) Mohammed Albarghouthi.**
 
+> **This is an unofficial fork.** It restores **The Hunter's Dream** as the default co-op pool in
+> bbport 1.9.7 and adds no game files. Install the official upstream 1.9.7 package first, then
+> replace its launcher with the patch from
+> [this fork's releases](https://github.com/Klonty/bloodborne-pc-hunters-dream/releases).
+> The fork is not affiliated with Supermedo, the bbport contributors, The Hunter's Dream,
+> Sony Interactive Entertainment, or FromSoftware.
+
 The original PlayStation 4 game runs directly on your PC: its own x86-64 code runs natively,
 and the graphics are translated to Vulkan. No emulator window, no setup scripts: unpack the zip,
 start `Bloodborne.exe`, pick your game folder and press **PLAY**.
 
-**[Download the latest version](https://github.com/Supermedo/bloodborne_pc/releases/latest)** · **[Join the Discord](https://discord.gg/HXBaehzTBx)**  **[Join X,com](https://x.com/SuperMedoPorts)**
+**[Upstream 1.9.7 game package](https://github.com/Supermedo/bloodborne_pc/releases/latest)** · **[Fork launcher patch](https://github.com/Klonty/bloodborne-pc-hunters-dream/releases)** · **[Join the upstream Discord](https://discord.gg/HXBaehzTBx)**  **[Join X,com](https://x.com/SuperMedoPorts)**
 Check my other ports 
 https://nativeretro.com/
 
@@ -18,9 +25,10 @@ https://nativeretro.com/
 
 ## Features
 
-- **Online play (beta):** messages, bloodstains and wandering ghosts from other hunters through
-  [SuperMedo Server](https://bbport.de/server/), and bells and summons through a shadNet
-  server (SupermMedos's public one by default).
+- **Online play (beta):** messages, bloodstains and wandering ghosts from other hunters, and
+  bells and summons through a shadNet server. This fork defaults to
+  [The Hunter's Dream](https://thehuntersdream.com) (bbhost's co-op pool); SuperMedo Server
+  stays available as a second choice.
 - **Launcher with every setting in one window**, in 13 languages: English, Arabic, Russian,
   Spanish, Portuguese, French, German, Italian, Polish, Turkish, Chinese, Japanese, Korean.
 - **Guided first start:** five steps check your game files (a clean 1.09 `eboot.bin`, a complete
@@ -111,19 +119,26 @@ made for shadPS4 can be copied over it), including mouse look: see [docs/INPUT.m
 
 ## Playing online (beta)
 
-1. Register a shadNet account at [shadnet.shadps4.net](https://shadnet.shadps4.net).
-2. In the launcher, open **Online play**, tick **Play online** and enter your account name
-   (not your email) and password.
-3. Press **Test connection**: all three lines should say "reachable". Then press **PLAY** and
-   choose online at the title screen. The Hunter's Dream welcome message means you are online.
+This fork defaults to **The Hunter's Dream**, bbhost's co-op pool, and keeps **SuperMedo Server**
+as a second choice.
 
-Everyone you want to play with needs game version 1.09 and the same co-op server. A private
-shadNet server (from the [shadp2p](https://github.com/Wozzardman/shadp2p) project) works too:
-put its address in **Server address**.
+1. Install the official 1.9.7 package, then apply the fork's launcher patch (see the top of this
+   README).
+2. In the launcher, open **Online play** and tick **Play online**. The co-op pool is already
+   **The Hunter's Dream (recommended)**.
+3. Press **Sign in with Discord** once and approve the code on
+   [thehuntersdream.com](https://thehuntersdream.com).
+4. Press **Test connection**, then **PLAY** and choose online at the title screen.
+5. To play on SuperMedo Server instead, choose it under **Co-op pool** and sign in with Discord
+   or make its free account.
 
-Playing with bbhost players on The Hunter's Dream's co-op pool is off in this port until it
-works properly with their server. Please don't ask The Hunter's Dream for help with bbport: use
-our [Discord server](https://discord.gg/WtYT4fXhEN) instead.
+Everyone you want to play with needs game version 1.09 and the same co-op pool. A private
+shadNet server (from the [shadp2p](https://github.com/Wozzardman/shadp2p) project) still works
+through **Own server** under Seamless co-op; put its address in **Server address**.
+
+The Hunter's Dream is a third-party service. This fork does not run it, and its operators do not
+support bbport itself: please don't ask The Hunter's Dream for help with the port. Use the
+[upstream community](https://github.com/Supermedo/bloodborne_pc) instead.
 
 ## Known issues
 
