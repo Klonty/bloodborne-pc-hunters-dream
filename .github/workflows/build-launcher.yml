@@ -1,0 +1,67 @@
+name: Build launcher patch
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install PyInstaller
+        run: python -m pip install --upgrade pip pyinstaller pillow
+
+      - name: Build Bloodborne.exe
+        shell: pwsh
+        run: |
+          $hidden = @(
+            'argparse', 'base64', 'bisect', 'collections', 'contextlib', 'hashlib', 'json',
+            're', 'shutil', 'struct', 'tempfile', 'xml.etree.ElementTree', 'urllib.request',
+            'ctypes.wintypes'
+          )
+          $pyArgs = @(
+            '-m', 'PyInstaller', '--noconfirm', '--clean', '--log-level', 'WARN', '--windowed',
+            '--name', 'Bloodborne', '--icon', 'launcher/bloodborne.ico',
+            '--distpath', 'out/pyi-dist', '--workpath', 'out/pyi-work', '--specpath', 'out/pyi-work',
+            '--paths', 'scripts', '--add-data', 'launcher/assets;assets'
+          )
+          foreach ($module in $hidden) { $pyArgs += @('--hidden-import', $module) }
+          $pyArgs += 'launcher/bbport_launcher_win.py'
+          & python @pyArgs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Package the launcher patch
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          if (-not $tag) { $tag = 'dev' }
+          $dest = 'out/launcher-patch'
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Copy-Item -Path 'out/pyi-dist/Bloodborne/*' -Destination $dest -Recurse -Force
+          Copy-Item -Path 'LICENSE', 'FORK-NOTICE.md', 'INSTALL.md' -Destination $dest -Force
+          $zip = "bbport-hunters-dream-launcher-$tag.zip"
+          Compress-Archive -Path "$dest/*" -DestinationPath $zip -Force
+          Get-ChildItem $zip | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: launcher-patch
+          path: bbport-hunters-dream-launcher-*.zip
+
+      - name: Attach the patch to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: bbport-hunters-dream-launcher-*.zip
+          generate_release_notes: true
