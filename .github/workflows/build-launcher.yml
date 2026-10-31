@@ -10,8 +10,24 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip pillow
+
+      - name: Run launcher checks
+        run: python tools/check_launcher.py --quick
+
   build:
     runs-on: windows-latest
+    needs: test
     steps:
       - uses: actions/checkout@v4
 
